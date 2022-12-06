@@ -37,13 +37,16 @@ public class HelperService {
             process.setNameProcess(str.nextToken());
             process.setArrivalTime(Integer.parseInt(str.nextToken()));
             process.setBurstTime(Integer.parseInt(str.nextToken()));
+            if (str.hasMoreTokens()){
+                process.setPriority(Integer.parseInt(str.nextToken()));
+            }
             processes.add(process);
         }
         reader.close();
         return processes;
     }
 
-    public static Ddnode readDDnode(String name) throws IOException {
+    public static Ddnode readDDnode(String name) throws Exception {
         Ddnode nodes = new Ddnode();
 
         BufferedReader reader = new BufferedReader(new FileReader(name));

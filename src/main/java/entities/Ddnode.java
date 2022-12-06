@@ -3,6 +3,7 @@ package entities;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.StringTokenizer;
 
 public class Ddnode implements Serializable{
     private String sl_node;
@@ -39,7 +40,20 @@ public class Ddnode implements Serializable{
     public void setNodes(ArrayList<String> nodes) {
         this.nodes = nodes;
     }
-    public void insertNode(String node) {
+    public void insertNode(String node) throws Exception{
+        StringTokenizer str = new StringTokenizer(node,";");
+        try {
+            if(str.countTokens() != 3){
+                throw new Exception("false");
+            }
+            int i = str.countTokens();
+            while(i != 0){
+                 int x = Integer.parseInt(str.nextToken());
+                i--;
+            }
+        }catch (Exception e){
+            throw e;
+        }
         this.nodes.add(node);
     }
 

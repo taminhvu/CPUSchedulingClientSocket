@@ -10,6 +10,7 @@ import java.util.Comparator;
 import javax.crypto.SealedObject;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
+
 import entities.DataPackage;
 import entities.Process;
 import services.Client;
@@ -108,10 +109,11 @@ public class Draw extends JPanel {
                 client = new Client();
                 client.startClient();
                 if (processes.size() == 0) {
-                    throw new Exception("null");
+                    throw new Exception("processes null");
                 }
                 client.setProcesses(processes);
                 String selected = (String) option.getSelectedItem();
+                System.out.println(selected);
                 DataPackage dataPackage;
                 SealedObject sealedObject;
                 String str;
@@ -138,13 +140,12 @@ public class Draw extends JPanel {
                 dataPackage = new DataPackage(sealedObject, str);
                 client.send(dataPackage);
                 dataPackage = client.receive();
-                processes = (ArrayList<Process>) dataPackage.getSealedObject().getObject(client.getSecretKey());
-                System.out.println(processes);
-                System.out.println(client.getProcesses());
-                chartPanel.setProcesses(processes);
-                waitingtimeResultJLabel.setText(String.valueOf(wt(processes)));
-                aroundtimeResultJLabel.setText(String.valueOf(at(processes)));
-                setTableProcess(processes,model);
+                client.setProcesses((ArrayList<Process>) dataPackage.getSealedObject().getObject(client.getSecretKey()));
+                client.setMessage(HelperService.decryptInput(dataPackage.getMessage(),client.getSecretKey()));
+                chartPanel.setProAndMess(client.getProcesses(),client.getMessage());
+                waitingtimeResultJLabel.setText(String.valueOf(wt(client.getProcesses())));
+                aroundtimeResultJLabel.setText(String.valueOf(at(client.getProcesses())));
+                setTableProcess(client.getProcesses(), model);
             } catch (Exception ex) {
                 JOptionPane.showMessageDialog(this, "unread file or incorrect data!",
                         "ERROR", JOptionPane.ERROR_MESSAGE);
@@ -182,7 +183,7 @@ public class Draw extends JPanel {
     private float wt(ArrayList<entities.Process> processes) {
         float sum = 0;
         for (int i = 0; i < processes.size(); i++) {
-            sum = sum + this.processes.get(i).getWaitingTime();
+            sum = sum + processes.get(i).getWaitingTime();
         }
         return sum / processes.size();
 
@@ -191,7 +192,7 @@ public class Draw extends JPanel {
     private float at(ArrayList<entities.Process> processes) {
         float sum = 0;
         for (int i = 0; i < processes.size(); i++) {
-            sum = sum + this.processes.get(i).getTurnaroundTime();
+            sum = sum + processes.get(i).getTurnaroundTime();
         }
         return sum / processes.size();
 
@@ -203,35 +204,81 @@ public class Draw extends JPanel {
 
     class CustomPanel extends JPanel {
         private ArrayList<Process> processes;
+        private String message;
 
         @Override
         public void paintComponent(Graphics g) {
 //            sort(processes);
             super.paintComponent(g);
             if (processes != null) {
-                if (processes.get(0).getCompletionTime() != 0) {
+                if (!message.equals("rrb")) {
+                    System.out.println(message);
+
+                    ///
                     int x = 100;
                     int y = 30;
                     g.drawString("0", x - 5, y + 45);
                     for (int i = 0; i < processes.size(); i++) {
-                        entities.Process p = processes.get(i);
                         x = 100 * (i + 1);
                         y = 30;
                         g.drawRect(x, y, 100, 30);
                         g.setFont(new Font("Segoe UI", Font.BOLD, 13));
                         g.drawString(processes.get(i).getNameProcess(), x + 45, y + 20);
-
                         g.setFont(new Font("Segoe UI", Font.PLAIN, 12));
                         g.drawString(Integer.toString(processes.get(i).getCompletionTime()), x + 95, y + 45);
                     }
                 }
+                else {
+                ArrayList<Process> clone = new ArrayList<>(processes);
+                int x = 50;
+                int y = 30;
+                int t = 0; //current time
+                int count = 0;
+                g.drawString("0", x - 5, y + 45);
+                while (true) {
+                    boolean done = true;
+                    for (int i = 0; i < clone.size(); i++) {
+                        if (clone.get(i).getBurstTime() > 0) {
+                            done = false;
+                            if (clone.get(i).getBurstTime() > 2) {
+                                clone.get(i).setBurstTime(clone.get(i).getBurstTime() - 2);
+                                t += 2;
+                                x = 50 * (count + 1);
+                                y = 30;
+                                g.drawRect(x, y, 50, 30);
+                                g.setFont(new Font("Segoe UI", Font.BOLD, 13));
+                                g.drawString(clone.get(i).getNameProcess(), x + 23, y + 20);
+                                g.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+                                g.drawString(String.valueOf(t), x + 47, y + 45);
+                                count++;
+                            } else {
+                                t += clone.get(i).getBurstTime();
+                                x = 50 * (count + 1);
+                                y = 30;
+                                g.drawRect(x, y, 50, 30);
+                                g.setFont(new Font("Segoe UI", Font.BOLD, 13));
+                                g.drawString(clone.get(i).getNameProcess(), x + 23, y + 20);
+                                g.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+                                g.drawString(String.valueOf(t), x + 47, y + 45);
+                                clone.get(i).setBurstTime(0);
+                                count ++;
+                            }
+                        }
+                    }
+                    if (done == true) {
+                        break;
+                    }
+                }
+                }
             }
         }
 
-        public void setProcesses(ArrayList<Process> processes) {
+        public void setProAndMess(ArrayList<Process> processes,String message) {
             this.processes = processes;
+            this.message = message;
             repaint();
         }
+
     }
 }
 
