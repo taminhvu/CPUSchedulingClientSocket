@@ -62,27 +62,27 @@ public class ShortWay extends javax.swing.JPanel {
             setPreferredSize(new Dimension(800, 600));
             setBackground(Color.yellow);
         }
+
         MyGraphics() {
             setPreferredSize(new Dimension(800, 600));
             setBackground(Color.yellow);
         }
+
         @Override
         public void paintComponent(Graphics g) {
-            int x[] = new int[50];
-            int y[] = new int[50];
-            BufferedReader bufferedReader = null;
-
-            // File node
-            File file = new File(this.url);
             try {
-                bufferedReader = new BufferedReader(new FileReader(file));
-            } catch (FileNotFoundException ex) {
-                System.out.println("Loi file node");
-                Logger.getLogger(ShortWay.class.getName()).log(Level.SEVERE, null, ex);
-            }
+                int x[] = new int[50];
+                int y[] = new int[50];
+                BufferedReader bufferedReader = null;
 
-            String line;
-            try {
+                // File node
+                File file = new File(this.url);
+                try {
+                    bufferedReader = new BufferedReader(new FileReader(file));
+                } catch (FileNotFoundException ex) {
+                    throw ex;
+                }
+                String line;
                 // duyệt từng hàng, kiếm cặp node (source-destination)
                 line = bufferedReader.readLine();
                 ArrayList<String> aline = new ArrayList<>();
@@ -91,8 +91,7 @@ public class ShortWay extends javax.swing.JPanel {
                     try {
                         st = new StringTokenizer(line, ";");
                     } catch (Exception ex) {
-                        System.out.println("bo line cuoi trong file thanh cong/205");
-                        break;  //neu line cuoi khong doc duoc thi dung dong while
+                        throw ex;
                     }
                     while (st.hasMoreTokens()) {
                         aline.add(st.nextToken());
@@ -259,14 +258,10 @@ public class ShortWay extends javax.swing.JPanel {
                         }
                     }
                 } else {
-                    JOptionPane.showMessageDialog(
-                            this,
-                            new JLabel("Loi khong the tinh toan va ve duong di ngan nhat!!"));
+                    throw new Exception("Loi khong the tinh toan va ve duong di ngan nhat!!");
                 }
-
-
-            } catch (IOException ex) {
-                Logger.getLogger(ShortWay.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (Exception ex) {
+                System.out.println(ex);
             }
         }
     }
@@ -274,8 +269,6 @@ public class ShortWay extends javax.swing.JPanel {
     public ShortWay() {
         this.setSize(1090, 750);
         initComponents();
-
-
     }
 
     public static BufferedImage getScreenShot(
@@ -411,6 +404,7 @@ public class ShortWay extends javax.swing.JPanel {
                             "ERROR", JOptionPane.ERROR_MESSAGE);
                 }
             } catch (Exception ex) {
+                System.out.println(ex);
                 JOptionPane.showMessageDialog(this, "unread file or incorrect data!",
                         "ERROR", JOptionPane.ERROR_MESSAGE);
             }
@@ -440,7 +434,7 @@ public class ShortWay extends javax.swing.JPanel {
                     JOptionPane.showMessageDialog(this, "loi chup hinh!",
                             "ERROR", JOptionPane.ERROR_MESSAGE);
                 }
-            }catch (NullPointerException ex){
+            } catch (NullPointerException ex) {
                 JOptionPane.showMessageDialog(this, "chưa có dữ liệu mới trả về!",
                         "ERROR", JOptionPane.ERROR_MESSAGE);
             }
