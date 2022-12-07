@@ -26,7 +26,7 @@ import entities.Ddnode;
 
 public class HelperService {
 
-    public static ArrayList<entities.Process> readProcess(String name) throws IOException {
+    public static ArrayList<entities.Process> readProcess(String name) throws Exception {
         ArrayList<entities.Process> processes = new ArrayList<>();
         BufferedReader reader = new BufferedReader(new FileReader(name));
         String line;
@@ -35,10 +35,19 @@ public class HelperService {
             StringTokenizer str = new StringTokenizer(line, ";");
             entities.Process process = new entities.Process();
             process.setNameProcess(str.nextToken());
-            process.setArrivalTime(Integer.parseInt(str.nextToken()));
-            process.setBurstTime(Integer.parseInt(str.nextToken()));
-            if (str.hasMoreTokens()){
-                process.setPriority(Integer.parseInt(str.nextToken()));
+            int temp = Integer.parseInt(str.nextToken());
+            if (temp < 0)
+                throw new Exception("loi");
+            process.setArrivalTime(temp);
+            temp = Integer.parseInt(str.nextToken());
+            if (temp <= 0)
+                throw new Exception("loi");
+            process.setBurstTime(temp);
+            if (str.hasMoreTokens()) {
+                temp = Integer.parseInt(str.nextToken());
+                if (temp < 0)
+                    throw new Exception("loi");
+                process.setPriority(temp);
             }
             processes.add(process);
         }
