@@ -26,6 +26,14 @@ import entities.Ddnode;
 
 public class HelperService {
 
+    public static boolean checkDuplicate(ArrayList<Process> processes,Process process){
+        for(int i = 0; i < processes.size(); i++){
+            if(processes.get(i).getNameProcess().equalsIgnoreCase(process.getNameProcess())){
+                return true;
+            }
+        }
+        return false;
+    }
     public static ArrayList<entities.Process> readProcess(String name) throws Exception {
         ArrayList<entities.Process> processes = new ArrayList<>();
         BufferedReader reader = new BufferedReader(new FileReader(name));
@@ -37,18 +45,19 @@ public class HelperService {
             process.setNameProcess(str.nextToken());
             int temp = Integer.parseInt(str.nextToken());
             if (temp < 0)
-                throw new Exception("loi");
+                throw new Exception("negative arrival time");
             process.setArrivalTime(temp);
             temp = Integer.parseInt(str.nextToken());
             if (temp <= 0)
-                throw new Exception("loi");
+                throw new Exception("negative burst time");
             process.setBurstTime(temp);
             if (str.hasMoreTokens()) {
                 temp = Integer.parseInt(str.nextToken());
                 if (temp < 0)
-                    throw new Exception("loi");
+                    throw new Exception("negative priority time");
                 process.setPriority(temp);
             }
+            if(checkDuplicate(processes,process) == true) throw new Exception("duplicate process");
             processes.add(process);
         }
         reader.close();

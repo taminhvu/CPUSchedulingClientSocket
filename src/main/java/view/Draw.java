@@ -97,7 +97,7 @@ public class Draw extends JPanel {
                     setTableProcess(processes, model);
                 } catch (Exception exception) {
                     System.out.println(exception);
-                    JOptionPane.showMessageDialog(this, "error ocurred!",
+                    JOptionPane.showMessageDialog(this, exception.getMessage(),
                             "ERROR", JOptionPane.ERROR_MESSAGE);
                 }
             }
@@ -147,7 +147,7 @@ public class Draw extends JPanel {
                 aroundtimeResultJLabel.setText(String.valueOf(at(client.getProcesses())));
                 setTableProcess(client.getProcesses(), model);
             } catch (Exception ex) {
-                JOptionPane.showMessageDialog(this, "unread file or incorrect data!",
+                JOptionPane.showMessageDialog(this, ex.getMessage(),
                         "ERROR", JOptionPane.ERROR_MESSAGE);
             }
         });
